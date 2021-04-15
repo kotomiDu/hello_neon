@@ -1,0 +1,7 @@
+x64/
+Win32/
+Debug/
+.vs/
+hello_neon/Debug/
+hello_neon/Win32/
+hello_neon/Release/

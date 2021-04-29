@@ -147,10 +147,13 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="helloneon-intrinsics.cpp" />
+    <ClCompile Include="test.cpp" />
+    <ClCompile Include="vpmath.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="NEON_2_SSE.h" />
     <ClInclude Include="helloneon-intrinsics.h" />
+    <ClInclude Include="vpmath.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

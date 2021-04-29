@@ -21,12 +21,21 @@
     <ClCompile Include="helloneon-intrinsics.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="vpmath.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="test.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="helloneon-intrinsics.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="NEON_2_SSE.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="vpmath.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -63,7 +63,7 @@ fir_filter_c(short* output, const short* input, const short* kernel, int width, 
 }
 
 
-int main() {
+int main1() {
   
     char buffer[512];
     double  t0, t1, time_c, time_neon;

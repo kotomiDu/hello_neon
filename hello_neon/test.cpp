@@ -75,8 +75,7 @@ int main() {
         }
         D("%d fails\n", fails);
     }
-    // print output to avoid compiler over-optimization
-    printf("%.2f, %.2f\n", output[TEST_SIZE - 1], output_expected[TEST_SIZE - 1]);
+
 
     /* Benchmark loop - C++ version */
     begin = std::chrono::steady_clock::now();
@@ -113,8 +112,8 @@ int main() {
         }
         D("%d fails\n", fails);
     }
-    // print output to avoid compiler over-optimization
-    printf("%.2f, %.2f\n", output[0], output_expected[0]);
+
+
     /* Benchmark loop - C++ version */
     begin = std::chrono::steady_clock::now();
     {
@@ -150,8 +149,7 @@ int main() {
         }
         D("%d fails\n", fails);
     }
-    // print output to avoid compiler over-optimization
-    printf("%.2f, %.2f\n", output[0], output_expected[0]);
+
     /* Benchmark loop - C++ version */
     begin = std::chrono::steady_clock::now();
     {
@@ -187,8 +185,8 @@ int main() {
         }
         D("%d fails\n", fails);
     }
-    // print output to avoid compiler over-optimization
-    printf("%.2f, %.2f\n", output[0], output_expected[0]);
+
+
     /* Benchmark loop - C++ version */
     begin = std::chrono::steady_clock::now();
     {
@@ -225,7 +223,7 @@ int main() {
         D("%d fails\n", fails);
     }
     // print output to avoid compiler over-optimization
-    printf("%.2f, %.2f\n", output[0], output_expected[0]);
+    printf("print first value %.2f, %.2f\n", output[0], output_expected[0]);
 
 
 }

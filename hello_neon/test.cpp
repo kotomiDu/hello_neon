@@ -240,5 +240,8 @@ int main() {
         }
         D("%d fails\n", fails);
     }
+    // print output to avoid compiler over-optimization
+    printf("%f", output[0]);
+    printf("%f", output_expected[0]);
 
 }

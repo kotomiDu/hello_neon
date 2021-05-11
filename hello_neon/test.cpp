@@ -1,47 +1,23 @@
 #include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include "helloneon-intrinsics.h"
 #include "vpmath.h"
-
+#include <chrono>
 
 #define NOMINMAX
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-
-
-#define CLOCK_REALTIME 0
-//struct timespec { long tv_sec; long tv_nsec; };    //header part
-static int clock_gettime(int, struct timespec* spec)      //C-file part
-{
-    __int64 wintime; GetSystemTimeAsFileTime((FILETIME*)&wintime);
-    wintime -= 116444736000000000i64;  //1jan1601 to 1jan1970
-    spec->tv_sec = wintime / 10000000i64;           //seconds
-    spec->tv_nsec = wintime % 10000000i64 * 100;      //nano-seconds
-    return 0;
-}
-
 
 #define  D(...)  do {} while (0)
 
 #define TEST_SIZE 257
 #define  FIR_ITERATIONS    600000
 
-/* return current time in milliseconds */
-static double
-now_ms(void)
-{
-    struct timespec res;
-    clock_gettime(CLOCK_REALTIME, &res);
-    return 1000.0 * res.tv_sec + (double)res.tv_nsec / 1e6;
-}
-
-
-
 int main() {
 
     char buffer[512];
+    std::chrono::steady_clock::time_point begin, end;
     double  t0, t1, time_c, time_neon;
     float input1[TEST_SIZE];
     float input2[TEST_SIZE];
@@ -50,39 +26,42 @@ int main() {
 
     /* setup  input - whatever */
     {
+        srand((unsigned int)time(NULL));
         int  nn;
+        float a = 5.0;
         for (nn = 0; nn < TEST_SIZE; nn++) {
-           
-            input1[nn] = static_cast <float> (rand());
-            input2[nn] = static_cast <float> (rand());
+            input1[nn] = (float(rand()) / float((RAND_MAX)) * a);
+            input2[nn] = (float(rand()) / float((RAND_MAX)) * a);
         }
     }
 
 
-    time_c = 0;
+
 
     /* Benchmark loop - C++ version */
-    t0 = now_ms();
+
+    begin = std::chrono::steady_clock::now();
     {
         int  count = FIR_ITERATIONS;
         for (; count > 0; count--) {
             cVpFloat1DAdd(output_expected, TEST_SIZE, input1, input2);
         }
     }
-    t1 = now_ms();
-    time_c = t1 - t0;
+    end = std::chrono::steady_clock::now();
+    time_c = static_cast<double>(std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count());
     printf("cVpFloat1DAdd         :%g ms\n", time_c);
 
+
     /* Benchmark loop - Neon version */
-    t0 = now_ms();
+    begin = std::chrono::steady_clock::now();
     {
         int  count = FIR_ITERATIONS;
-        for (; count > 0; count--){
+        for (; count > 0; count--) {
             VpFloat1DAdd(output, TEST_SIZE, input1, input2);
         }
     }
-    t1 = now_ms();
-    time_neon = t1 - t0;
+    end = std::chrono::steady_clock::now();
+    time_neon = static_cast<double>(std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count());
     printf("VpFloat1DAdd          :%g ms (x%g faster)\n", time_neon, time_c / (time_neon < 1e-6 ? 1. : time_neon));
 
     /* check the result, just in case */
@@ -96,29 +75,31 @@ int main() {
         }
         D("%d fails\n", fails);
     }
+    // print output to avoid compiler over-optimization
+    printf("%.2f, %.2f\n", output[TEST_SIZE - 1], output_expected[TEST_SIZE - 1]);
 
     /* Benchmark loop - C++ version */
-    t0 = now_ms();
+    begin = std::chrono::steady_clock::now();
     {
         int  count = FIR_ITERATIONS;
         for (; count > 0; count--) {
             cVpFloat1DSub(output_expected, TEST_SIZE, input1, input2);
         }
     }
-    t1 = now_ms();
-    time_c = t1 - t0;
+    end = std::chrono::steady_clock::now();
+    time_c = static_cast<double>(std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count());
     printf("cVpFloat1DSub         :%g ms\n", time_c);
 
     /* Benchmark loop - Neon version */
-    t0 = now_ms();
+    begin = std::chrono::steady_clock::now();
     {
         int  count = FIR_ITERATIONS;
         for (; count > 0; count--) {
             VpFloat1DSub(output, TEST_SIZE, input1, input2);
         }
     }
-    t1 = now_ms();
-    time_neon = t1 - t0;
+    end = std::chrono::steady_clock::now();
+    time_neon = static_cast<double>(std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count());
     printf("VpFloat1DSub          :%g ms (x%g faster)\n", time_neon, time_c / (time_neon < 1e-6 ? 1. : time_neon));
 
     /* check the result, just in case */
@@ -132,29 +113,30 @@ int main() {
         }
         D("%d fails\n", fails);
     }
-
+    // print output to avoid compiler over-optimization
+    printf("%.2f, %.2f\n", output[0], output_expected[0]);
     /* Benchmark loop - C++ version */
-    t0 = now_ms();
+    begin = std::chrono::steady_clock::now();
     {
         int  count = FIR_ITERATIONS;
         for (; count > 0; count--) {
             cVpFloat1DMul(output_expected, TEST_SIZE, input1, input2[0]);
         }
     }
-    t1 = now_ms();
-    time_c = t1 - t0;
+    end = std::chrono::steady_clock::now();
+    time_c = static_cast<double>(std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count());
     printf("cVpFloat1DMul         :%g ms\n", time_c);
 
     /* Benchmark loop - Neon version */
-    t0 = now_ms();
+    begin = std::chrono::steady_clock::now();
     {
         int  count = FIR_ITERATIONS;
         for (; count > 0; count--) {
             VpFloat1DMul(output, TEST_SIZE, input1, input2[0]);
         }
     }
-    t1 = now_ms();
-    time_neon = t1 - t0;
+    end = std::chrono::steady_clock::now();
+    time_neon = static_cast<double>(std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count());
     printf("VpFloat1DMul          :%g ms (x%g faster)\n", time_neon, time_c / (time_neon < 1e-6 ? 1. : time_neon));
 
     /* check the result, just in case */
@@ -168,29 +150,30 @@ int main() {
         }
         D("%d fails\n", fails);
     }
-
+    // print output to avoid compiler over-optimization
+    printf("%.2f, %.2f\n", output[0], output_expected[0]);
     /* Benchmark loop - C++ version */
-    t0 = now_ms();
+    begin = std::chrono::steady_clock::now();
     {
         int  count = FIR_ITERATIONS;
         for (; count > 0; count--) {
             cVpFloat1DMul(output_expected, TEST_SIZE, input1, input2);
         }
     }
-    t1 = now_ms();
-    time_c = t1 - t0;
+    end = std::chrono::steady_clock::now();
+    time_c = static_cast<double>(std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count());
     printf("cVpFloat1DMul         :%g ms\n", time_c);
 
     /* Benchmark loop - Neon version */
-    t0 = now_ms();
+    begin = std::chrono::steady_clock::now();
     {
         int  count = FIR_ITERATIONS;
         for (; count > 0; count--) {
             VpFloat1DMul(output, TEST_SIZE, input1, input2);
         }
     }
-    t1 = now_ms();
-    time_neon = t1 - t0;
+    end = std::chrono::steady_clock::now();
+    time_neon = static_cast<double>(std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count());
     printf("VpFloat1DMul          :%g ms (x%g faster)\n", time_neon, time_c / (time_neon < 1e-6 ? 1. : time_neon));
 
     /* check the result, just in case */
@@ -204,29 +187,30 @@ int main() {
         }
         D("%d fails\n", fails);
     }
-
+    // print output to avoid compiler over-optimization
+    printf("%.2f, %.2f\n", output[0], output_expected[0]);
     /* Benchmark loop - C++ version */
-    t0 = now_ms();
+    begin = std::chrono::steady_clock::now();
     {
         int  count = FIR_ITERATIONS;
         for (; count > 0; count--) {
             cVpFloat1DDiv(output_expected, TEST_SIZE, input1, input2[0]);
         }
     }
-    t1 = now_ms();
-    time_c = t1 - t0;
+    end = std::chrono::steady_clock::now();
+    time_c = static_cast<double>(std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count());
     printf("cVpFloat1DDiv         :%g ms\n", time_c);
 
     /* Benchmark loop - Neon version */
-    t0 = now_ms();
+    begin = std::chrono::steady_clock::now();
     {
         int  count = FIR_ITERATIONS;
         for (; count > 0; count--) {
             VpFloat1DDiv(output, TEST_SIZE, input1, input2[0]);
         }
     }
-    t1 = now_ms();
-    time_neon = t1 - t0;
+    end = std::chrono::steady_clock::now();
+    time_neon = static_cast<double>(std::chrono::duration_cast<std::chrono::milliseconds>(end - begin).count());
     printf("VpFloat1DDiv          :%g ms (x%g faster)\n", time_neon, time_c / (time_neon < 1e-6 ? 1. : time_neon));
 
     /* check the result, just in case */
@@ -241,7 +225,7 @@ int main() {
         D("%d fails\n", fails);
     }
     // print output to avoid compiler over-optimization
-    printf("%f", output[0]);
-    printf("%f", output_expected[0]);
+    printf("%.2f, %.2f\n", output[0], output_expected[0]);
+
 
 }
